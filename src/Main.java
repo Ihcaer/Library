@@ -11,16 +11,29 @@ public class Main {
 
         Library library = new Library();
 
-        try {
-            Scanner scanner = new Scanner(System.in);
+        try (Scanner scanner = new Scanner(System.in)) {
+//            Login
+            System.out.println("Enter your id.");
 
-            System.out.println("Enter your id");
-            int currentReaderId = scanner.nextInt();
-            scanner.nextLine();
-            Reader currentReader = readersMap.get(currentReaderId);
-// dodać walidację czy użytkownik istnieje
-            System.out.println("\nLogged as: " + currentReader.getName() + " " + currentReader.getLastname());
+            boolean isLogged = false;
+            do {
+                if (scanner.hasNextInt()) {
+                    int currentReaderId = scanner.nextInt();
+                    Reader currentReader = readersMap.getOrDefault(currentReaderId, null);
 
+                    if (currentReader != null) {
+                        isLogged = true;
+                        System.out.println("\nLogged as: " + currentReader.getName() + " " + currentReader.getLastname() + ".");
+                    } else {
+                        System.out.println("Reader with id " + currentReaderId + " not found. Please enter correct id.");
+                    }
+                } else {
+                    System.out.println("Invalid input. Please enter correct id.");
+                    scanner.next();
+                }
+            } while (!isLogged);
+
+//            Actions
             int selectedAction;
             do {
                 System.out.println("\nChoose action (enter number): [1]Add book | [2]Search for book | [3]Borrow book | [4]Return book | [5]Show book list | [6]Exit");
@@ -28,8 +41,6 @@ public class Main {
 
                 library.doAction(selectedAction);
             } while (selectedAction != 6);
-
-            scanner.close();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

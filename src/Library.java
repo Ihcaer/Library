@@ -1,25 +1,26 @@
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Library {
     List<Book> bookList = new ArrayList<>();
 
     public Library() {
-        bookList.add(new Book("title1", "author1", "isbn1", 2025));
-        bookList.add(new Book("title2", "author2", "isbn2", 2025));
-        bookList.add(new Book("title3", "author3", "isbn3", 2025));
-        bookList.add(new Book("title4", "author4", "isbn4", 2025));
+        for (int i = 1; i <= 4; i++) {
+            int randomYear = ThreadLocalRandom.current().nextInt(2000, 2026);
+            bookList.add(new Book("title" + i, "author" + i, "isbn" + i, randomYear));
+        }
     }
 
     public void doAction(int actionId) {
         switch (actionId) {
             case 1 -> addBook();
             case 2 -> searchBook();
-            case 3 -> borrowBook();
-            case 4 -> returnBook();
+            case 3 -> changeBookStatus("borrow");
+            case 4 -> changeBookStatus("return");
             case 5 -> displayBookList();
-            case 6 -> System.out.println("Exiting");
+            case 6 -> System.out.println("Exiting...");
             default -> System.out.println("Unknown number");
         }
     }
@@ -50,37 +51,30 @@ public class Library {
 
         System.out.println("Found books:");
         System.out.printf("%-15s %-15s %-15s %-15s %-15s%n", "Title", "Author", "ISBN", "Release year", "Status");
-        bookList.stream().filter(book -> book.getTitle().toLowerCase().equals(searchValue) || book.getAuthor().toLowerCase().equals(searchValue) || book.getIsbn().toLowerCase().equals(searchValue) || String.valueOf(book.getReleaseDate()).equals(searchValue)).forEach(Book::getBookInfo);
+        bookList.stream().filter(book -> book.getTitle().toLowerCase().contains(searchValue) || book.getAuthor().toLowerCase().contains(searchValue) || book.getIsbn().toLowerCase().contains(searchValue) || String.valueOf(book.getReleaseDate()).contains(searchValue)).forEach(Book::getBookInfo);
     }
 
-    private void borrowBook() {
+    private void changeBookStatus(String action) {
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("Enter book title.");
-        String borrowingBookTitle = scanner.nextLine();
+        String bookTitle = scanner.nextLine();
 
-        bookList.stream().filter(book -> book.getTitle().toLowerCase().equals(borrowingBookTitle)).findAny().ifPresentOrElse(book -> {
-            if (book.isBorrowed()) {
-                System.out.println("Book is already borrowed.");
-            } else {
-                book.changeStatus();
-                System.out.println("Thank you for borrowing the book.");
-            }
-        }, () -> System.out.println("Book not found."));
-    }
-
-    private void returnBook() {
-        Scanner scanner = new Scanner(System.in);
-
-        System.out.println("Enter book title.");
-        String returningBookTitle = scanner.nextLine();
-
-        bookList.stream().filter(book -> book.getTitle().toLowerCase().equals(returningBookTitle)).findAny().ifPresentOrElse(book -> {
-            if (book.isBorrowed()) {
-                book.changeStatus();
-                System.out.println("Thank you for returning the book.");
-            } else {
-                System.out.println("Book isn't borrowed.");
+        bookList.stream().filter(book -> book.getTitle().toLowerCase().equals(bookTitle)).findAny().ifPresentOrElse(book -> {
+            if (action.equals("borrow")) {
+                if (book.isBorrowed()) {
+                    System.out.println("Book is currently unavailable.");
+                } else {
+                    book.changeStatus();
+                    System.out.println("Thank you for borrowing the book.");
+                }
+            } else if (action.equals("return")) {
+                if (book.isBorrowed()) {
+                    book.changeStatus();
+                    System.out.println("Thank you for returning the book.");
+                } else {
+                    System.out.println("Book isn't borrowed.");
+                }
             }
         }, () -> System.out.println("Book not found."));
     }

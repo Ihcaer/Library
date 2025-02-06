@@ -1,5 +1,5 @@
 public class Reader {
-    private final int id;
+    private int id;
     private String name;
     private String lastname;
 

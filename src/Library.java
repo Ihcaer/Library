@@ -13,7 +13,23 @@ public class Library {
         }
     }
 
-    public void doAction(int actionId) {
+    public void chooseAction() {
+        try {
+            Scanner scanner = new Scanner(System.in);
+
+            int selectedAction;
+            do {
+                System.out.println("\nChoose action (enter number): [1]Add book | [2]Search for book | [3]Borrow book | [4]Return book | [5]Show book list | [6]Exit");
+                selectedAction = scanner.nextInt();
+
+                doAction(selectedAction);
+            } while (selectedAction != 6);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void doAction(int actionId) {
         switch (actionId) {
             case 1 -> addBook();
             case 2 -> searchBook();
@@ -25,7 +41,7 @@ public class Library {
         }
     }
 
-    public void addBook() {
+    private void addBook() {
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("Enter title.");
